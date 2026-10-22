@@ -1,0 +1,163 @@
+{
+  "info": {
+    "name": "Ferretería Jerusalén — API Tests",
+    "description": "Pruebas de integración: login PHP y gestión de productos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth — Login",
+      "item": [
+        {
+          "name": "CP-01: Login exitoso",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('No contiene mensaje de error', () => {",
+              "  pm.expect(pm.response.text()).to.not.include('Credenciales inválidas');",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/src/controllers/AuthController.php",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "admin" },
+                { "key": "password", "value": "admin123" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-02: Login fallido — contraseña incorrecta",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Debe mostrar mensaje de error', () => {",
+              "  pm.expect(pm.response.text()).to.include('Credenciales inválidas');",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/src/controllers/AuthController.php",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "admin" },
+                { "key": "password", "value": "CLAVE_INCORRECTA" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-03: Acceso a /admin sin sesión",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Debe redirigir al login (302) o mostrar error (403)', () => {",
+              "  pm.expect(pm.response.code).to.be.oneOf([302, 403, 401]);",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/public/views/dashboard.php"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Productos — Inventario",
+      "item": [
+        {
+          "name": "CP-07: Agregar producto",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Producto creado exitosamente', () => {",
+              "  pm.expect(pm.response.text()).to.not.include('error');",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/src/controllers/InventarioController.php",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "accion",          "value": "crear" },
+                { "key": "codigo_barras",   "value": "TEST-POSTMAN-001" },
+                { "key": "nombre_producto", "value": "Cemento Test" },
+                { "key": "precio_venta",    "value": "55.00" },
+                { "key": "stock_actual",    "value": "100" },
+                { "key": "stock_minimo",    "value": "10" },
+                { "key": "id_categoria",    "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-08: Editar stock de producto",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Stock actualizado', () => {",
+              "  pm.expect(pm.response.text()).to.not.include('error');",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/src/controllers/InventarioController.php",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "accion",       "value": "editar_stock" },
+                { "key": "codigo_barras","value": "TEST-POSTMAN-001" },
+                { "key": "stock_actual", "value": "75" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-12: Validar stock insuficiente",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Debe advertir sobre stock insuficiente', () => {",
+              "  pm.expect(pm.response.text()).to.include('Stock insuficiente');",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/src/controllers/InventarioController.php",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "accion",             "value": "validar_stock" },
+                { "key": "codigo_barras",      "value": "TEST-POSTMAN-001" },
+                { "key": "cantidad_solicitada","value": "9999" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
