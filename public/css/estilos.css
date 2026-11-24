@@ -1021,3 +1021,184 @@ h1, h2, h3, h4, h5, h6 {
         opacity: 1;
     }
 }
+
+/* ==========================================
+   FOTOS DE MATERIALES (CATÁLOGO & INVENTARIO)
+   ========================================== */
+.product-img-wrapper {
+    width: 100%;
+    height: 155px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover .product-img {
+    transform: scale(1.06);
+}
+
+.product-thumb-table {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #0f172a;
+    flex-shrink: 0;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product-thumb-table:hover {
+    transform: scale(1.4);
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+}
+
+/* ==========================================
+   INPUTS CON OJITO PARA VER CONTRASEÑA
+   ========================================== */
+.password-input-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper .form-input {
+    padding-right: 44px !important;
+}
+
+.toggle-password-btn {
+    position: absolute;
+    right: 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.toggle-password-btn:hover {
+    color: var(--accent-amber);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.toggle-password-btn:focus {
+    outline: none;
+    color: var(--accent-orange);
+}
+
+/* ==========================================
+   GENERADOR AUTOMÁTICO DE CONTRASEÑA
+   ========================================== */
+.btn-generate-password {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: var(--accent-amber);
+    font-size: 0.72rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.btn-generate-password:hover {
+    background: var(--accent-gradient);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+    transform: translateY(-1px);
+}
+
+/* ==========================================
+   BARRA DE CONFIABILIDAD DE CONTRASEÑA
+   ========================================== */
+.password-strength-box {
+    margin-top: 8px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 10px 12px;
+    transition: all 0.3s ease;
+}
+
+.strength-bar-track {
+    width: 100%;
+    height: 7px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.strength-bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 10px;
+    transition: width 0.35s ease, background-color 0.35s ease, box-shadow 0.35s ease;
+    background-color: #ef4444;
+}
+
+.strength-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    gap: 10px;
+}
+
+.strength-status-text {
+    font-weight: 600;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-copy-pass {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.72rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.btn-copy-pass:hover {
+    background: rgba(56, 189, 248, 0.25);
+    color: #ffffff;
+}

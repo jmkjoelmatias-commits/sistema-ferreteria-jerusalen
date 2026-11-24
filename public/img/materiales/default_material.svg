@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bgGrad)"/>
+  <circle cx="200" cy="130" r="60" fill="rgba(245, 158, 11, 0.08)"/>
+  <!-- Material Icon (Isometric box / brick) -->
+  <g transform="translate(160, 90)" stroke="url(#accentGrad)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M40 5 L75 25 L40 45 L5 25 Z" fill="rgba(234, 88, 12, 0.2)"/>
+    <path d="M5 25 L5 65 L40 85 L40 45 Z" fill="rgba(234, 88, 12, 0.3)"/>
+    <path d="M75 25 L75 65 L40 85 L40 45 Z" fill="rgba(234, 88, 12, 0.15)"/>
+    <line x1="40" y1="45" x2="40" y2="85"/>
+  </g>
+  <text x="200" y="225" font-family="'Outfit', sans-serif" font-size="16" font-weight="600" fill="#94a3b8" text-anchor="middle" letter-spacing="1">FERRETERÍA JERUSALÉN</text>
+  <text x="200" y="248" font-family="'Inter', sans-serif" font-size="12" fill="#64748b" text-anchor="middle">Material de Construcción</text>
+</svg>

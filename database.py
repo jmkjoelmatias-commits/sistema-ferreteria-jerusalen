@@ -90,6 +90,7 @@ def init_db():
             stock_actual INT NOT NULL DEFAULT 0 CHECK (stock_actual >= 0),
             stock_minimo INT NOT NULL DEFAULT 5 CHECK (stock_minimo >= 0), 
             id_categoria INT NOT NULL,
+            imagen VARCHAR(255),
             CONSTRAINT fk_producto_categoria FOREIGN KEY (id_categoria) REFERENCES categorias(id_categoria) ON DELETE CASCADE
         );
         
@@ -167,19 +168,29 @@ def init_db():
     
     # 7. Productos
     productos = [
-        ('7401001', 'Cemento Viacha IP-40 (50kg)', 52.00, 200, 20, 1),
-        ('7401002', 'Fierro Corrugado 12mm (Arequipa)', 85.50, 90, 15, 1),
-        ('7401003', 'Arena Fina (Cubo)', 120.00, 15, 5, 1),
-        ('7401004', 'Combo de construccion de 4 Lbs Tramontina', 95.00, 12, 3, 2),
-        ('7401005', 'Amoladora Angular Bosch 4 1/2 pulg', 480.00, 6, 2, 2),
-        ('7401006', 'Mezcladora de Cemento Pro 150L', 3200.00, 3, 1, 1),
-        ('7401007', 'Ladrillo Cerámico Gambote 18 Huecos', 1.80, 500, 100, 1),
-        ('7401008', 'Plastificante Sika para Hormigón (1L)', 35.00, 4, 5, 3)
+        ('7401001', 'Cemento Viacha IP-40 (50kg)', 52.00, 200, 20, 1, 'cemento_canva.png'),
+        ('7401002', 'Fierro Corrugado 12mm (Arequipa)', 85.50, 90, 15, 1, 'fierro_arequipa.jpg'),
+        ('7401003', 'Arena Fina (Cubo)', 120.00, 15, 5, 1, None),
+        ('7401004', 'Combo de construccion de 4 Lbs Tramontina', 95.00, 12, 3, 2, None),
+        ('7401005', 'Amoladora Angular Bosch 4 1/2 pulg', 480.00, 6, 2, 2, None),
+        ('7401006', 'Mezcladora de Cemento Pro 150L', 3200.00, 3, 1, 1, None),
+        ('7401007', 'Ladrillo Cerámico Gambote 18 Huecos', 1.80, 500, 100, 1, 'Ladrillo_de_18_huecos_gambote_ceramitex.jpg'),
+        ('7401008', 'Plastificante Sika para Hormigón (1L)', 35.00, 4, 5, 3, None),
+        ('7401009', 'Alambre de Amarre Arequipa (1kg)', 18.00, 150, 20, 1, 'Alambre_de_amarre_Arequipa.jpg'),
+        ('7401010', 'Casetones de Poliestireno Plastofor', 28.00, 80, 10, 1, 'casetones_de_poliestireno.jpg'),
+        ('7401011', 'Cemento Ecebol IP-30 (50kg)', 48.00, 160, 25, 1, 'cemento_ecebol.jpg'),
+        ('7401012', 'Cemento Eco Plus Especial (50kg)', 46.50, 120, 20, 1, 'cemento_eco_plus.png'),
+        ('7401013', 'Clavo de Construcción CONSTRUCTOR (1kg)', 14.00, 200, 30, 1, 'clavo_CONSTRUCTOR.jpg'),
+        ('7401014', 'Clavo PRAMEC Punta París (1kg)', 15.50, 180, 25, 1, 'Clavo_PRAMEC.jpg'),
+        ('7401015', 'Fierro Corrugado Ecebol 10mm', 68.00, 95, 15, 1, 'fierro_ecebol.jpg'),
+        ('7401016', 'Fierro Corrugado Las Lomas 12mm', 84.00, 110, 20, 1, 'fierro_las_lomas.jpg'),
+        ('7401017', 'Ladrillo 6 Huecos La Cerámica', 1.95, 800, 150, 1, 'Ladrillo_de_6_huecos_La_ceramica.jpg'),
+        ('7401018', 'Viguetas Pretensadas PRETEC Ltda.', 45.00, 75, 10, 1, 'Viguetas_pretendas_PRETEC_LIMITADA_SRL.jpg'),
     ]
     for p in productos:
         cur.execute("""
-            INSERT INTO productos (codigo_barras, nombre_producto, precio_venta, stock_actual, stock_minimo, id_categoria)
-            VALUES (%s, %s, %s, %s, %s, %s);
+            INSERT INTO productos (codigo_barras, nombre_producto, precio_venta, stock_actual, stock_minimo, id_categoria, imagen)
+            VALUES (%s, %s, %s, %s, %s, %s, %s);
         """, p)
         
     conn.commit()

@@ -63,6 +63,13 @@
                     <div class="product-grid" id="product-list">
                         {% for prod in productos %}
                         <div class="glass-panel product-card" data-name="{{ prod[2].lower() }}" data-cat="{{ prod[6].lower() }}">
+                            <div class="product-img-wrapper">
+                                <img src="{{ url_for('static', filename='img/materiales/' + (prod[7] if prod[7] else 'default_material.svg')) }}" 
+                                     alt="{{ prod[2] }}" 
+                                     class="product-img" 
+                                     loading="lazy"
+                                     onerror="this.src='{{ url_for('static', filename='img/materiales/default_material.svg') }}'">
+                            </div>
                             <span class="product-category">{{ prod[6] }}</span>
                             <h3 class="product-name">{{ prod[2] }}</h3>
                             

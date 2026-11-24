@@ -32,7 +32,15 @@
 
             <div class="form-group">
                 <label for="password" class="form-label">Contraseña</label>
-                <input type="password" name="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+                <div class="password-input-wrapper">
+                    <input type="password" name="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+                    <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('password', this)" title="Mostrar u ocultar contraseña" aria-label="Mostrar u ocultar contraseña">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <button type="submit" class="btn-primary">

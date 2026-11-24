@@ -1,7 +1,7 @@
 def get_todos_productos(cur):
-    """Retorna todos los productos con el nombre de su categoría."""
+    """Retorna todos los productos con el nombre de su categoría y su imagen."""
     cur.execute("""
-        SELECT p.id_producto, p.codigo_barras, p.nombre_producto, p.precio_venta, p.stock_actual, p.stock_minimo, c.nombre_categoria
+        SELECT p.id_producto, p.codigo_barras, p.nombre_producto, p.precio_venta, p.stock_actual, p.stock_minimo, c.nombre_categoria, p.imagen
         FROM productos p
         JOIN categorias c ON p.id_categoria = c.id_categoria
         ORDER BY p.nombre_producto;

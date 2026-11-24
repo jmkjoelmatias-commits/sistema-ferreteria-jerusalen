@@ -212,7 +212,21 @@
                         {% set is_low = prod[4] <= prod[5] %}
                         <tr class="{% if is_low %}pulse-alert-red{% endif %}">
                             <td><code>{{ prod[1] }}</code></td>
-                            <td><strong style="color: var(--text-primary);">{{ prod[2] }}</strong></td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <img src="{{ url_for('static', filename='img/materiales/' + (prod[8] if prod[8] else 'default_material.svg')) }}" 
+                                         alt="{{ prod[2] }}" 
+                                         class="product-thumb-table"
+                                         loading="lazy"
+                                         onerror="this.src='{{ url_for('static', filename='img/materiales/default_material.svg') }}'">
+                                    <div>
+                                        <strong style="color: var(--text-primary); display: block;">{{ prod[2] }}</strong>
+                                        {% if prod[8] %}
+                                        <span style="font-size: 0.7rem; color: var(--accent-amber); font-family: monospace;">{{ prod[8] }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{ prod[6] }}</td>
                             <td><strong>{{ prod[3] }} Bs.</strong></td>
                             <td style="text-align: right;">{{ prod[5] }} u.</td>
@@ -238,7 +252,7 @@
                                     </form>
                                     
                                     <!-- Editar Completo -->
-                                    <button class="toggle-btn enable" style="padding: 6px 10px;" onclick="openEditProductModal({{ prod[0] }}, '{{ prod[2] }}', '{{ prod[1] }}', {{ prod[3] }}, {{ prod[4] }}, {{ prod[5] }}, {{ prod[7] }})">
+                                    <button class="toggle-btn enable" style="padding: 6px 10px;" onclick="openEditProductModal({{ prod[0] }}, '{{ prod[2] }}', '{{ prod[1] }}', {{ prod[3] }}, {{ prod[4] }}, {{ prod[5] }}, {{ prod[7] }}, '{{ prod[8] or '' }}')">
                                         Editar
                                     </button>
                                     
@@ -288,13 +302,24 @@
                             </div>
                         </div>
                         
-                        <div class="form-group" style="margin-bottom: 20px;">
-                            <label for="p_cat" class="form-label" style="font-size: 0.75rem;">Categoría del Material</label>
-                            <select name="id_categoria" id="p_cat" class="select-input" style="padding: 8px 12px;">
-                                {% for cat in categorias %}
-                                <option value="{{ cat[0] }}">{{ cat[1] }}</option>
-                                {% endfor %}
-                            </select>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="p_cat" class="form-label" style="font-size: 0.75rem;">Categoría del Material</label>
+                                <select name="id_categoria" id="p_cat" class="select-input" style="padding: 8px 12px;">
+                                    {% for cat in categorias %}
+                                    <option value="{{ cat[0] }}">{{ cat[1] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="p_img" class="form-label" style="font-size: 0.75rem;">Foto del Material</label>
+                                <select name="imagen" id="p_img" class="select-input" style="padding: 8px 12px;">
+                                    <option value="">-- Sin Foto (Predeterminada) --</option>
+                                    {% for f in fotos_disponibles %}
+                                    <option value="{{ f }}">{{ f }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
                         
                         <button type="submit" class="btn-primary" style="padding: 10px 16px;">
@@ -334,14 +359,44 @@
                             <input type="text" name="direccion" id="c_direccion" class="form-input" style="padding: 8px 12px;" placeholder="ej. Calle Cívica Nro. 123" required>
                         </div>
                         
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
                             <div class="form-group" style="margin-bottom: 0;">
                                 <label for="c_user" class="form-label" style="font-size: 0.75rem;">Usuario Acceso</label>
                                 <input type="text" name="username" id="c_user" class="form-input" style="padding: 8px 12px;" placeholder="ej. juan_perez" required autocomplete="off">
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label for="c_pass" class="form-label" style="font-size: 0.75rem;">Contraseña</label>
-                                <input type="password" name="password" id="c_pass" class="form-input" style="padding: 8px 12px;" placeholder="Clave" required autocomplete="new-password">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <label for="c_pass" class="form-label" style="font-size: 0.75rem; margin-bottom: 0;">Contraseña</label>
+                                    <button type="button" class="btn-generate-password" onclick="generateAutoPassword('c_pass')" title="Generar una contraseña segura y confiable">
+                                        ⚡ Generar Automática
+                                    </button>
+                                </div>
+                                <div class="password-input-wrapper">
+                                    <input type="password" name="password" id="c_pass" class="form-input" style="padding: 8px 12px;" placeholder="Clave de acceso" required autocomplete="new-password" oninput="checkPasswordReliability('c_pass')">
+                                    <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('c_pass', this)" title="Mostrar u ocultar contraseña" aria-label="Mostrar u ocultar contraseña">
+                                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Barra de Confiabilidad de la Contraseña -->
+                        <div class="password-strength-box" id="c_pass_box" style="margin-bottom: 22px;">
+                            <div class="strength-bar-track">
+                                <div class="strength-bar-fill" id="c_pass_strength_fill"></div>
+                            </div>
+                            <div class="strength-info">
+                                <span class="strength-status-text" id="c_pass_strength_text">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                    <span>Confiabilidad: Ingrese una contraseña</span>
+                                </span>
+                                <span class="btn-copy-pass" id="c_pass_copy_btn" onclick="copyPasswordToClipboard('c_pass')" style="display: none;" title="Copiar contraseña generada al portapapeles">
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                                    <span>Copiar</span>
+                                </span>
                             </div>
                         </div>
                         
@@ -391,13 +446,24 @@
                 </div>
             </div>
             
-            <div class="form-group" style="margin-bottom: 24px;">
-                <label for="edit_p_cat" class="form-label">Categoría del Material</label>
-                <select name="id_categoria" id="edit_p_cat" class="select-input">
-                    {% for cat in categorias %}
-                    <option value="{{ cat[0] }}">{{ cat[1] }}</option>
-                    {% endfor %}
-                </select>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 24px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="edit_p_cat" class="form-label">Categoría</label>
+                    <select name="id_categoria" id="edit_p_cat" class="select-input">
+                        {% for cat in categorias %}
+                        <option value="{{ cat[0] }}">{{ cat[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="edit_p_img" class="form-label">Foto del Material</label>
+                    <select name="imagen" id="edit_p_img" class="select-input">
+                        <option value="">-- Sin Foto (Predeterminada) --</option>
+                        {% for f in fotos_disponibles %}
+                        <option value="{{ f }}">{{ f }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
             
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
@@ -487,8 +553,33 @@
             </div>
             
             <div class="form-group" style="margin-bottom: 24px;">
-                <label for="edit_u_password" class="form-label">Contraseña (Dejar en blanco para no cambiar)</label>
-                <input type="password" name="password" id="edit_u_password" class="form-input" placeholder="Nueva contraseña (opcional)">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label for="edit_u_password" class="form-label" style="margin-bottom: 0;">Contraseña (Opcional)</label>
+                    <button type="button" class="btn-generate-password" onclick="generateAutoPassword('edit_u_password')">
+                        ⚡ Generar Automática
+                    </button>
+                </div>
+                <div class="password-input-wrapper">
+                    <input type="password" name="password" id="edit_u_password" class="form-input" placeholder="Nueva contraseña (dejar en blanco para no cambiar)" oninput="checkPasswordReliability('edit_u_password')">
+                    <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('edit_u_password', this)" title="Mostrar u ocultar contraseña">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="password-strength-box" id="edit_u_password_box" style="margin-top: 10px; display: none;">
+                    <div class="strength-bar-track">
+                        <div class="strength-bar-fill" id="edit_u_password_strength_fill"></div>
+                    </div>
+                    <div class="strength-info">
+                        <span class="strength-status-text" id="edit_u_password_strength_text">Confiabilidad: Ingrese una contraseña</span>
+                        <span class="btn-copy-pass" id="edit_u_password_copy_btn" onclick="copyPasswordToClipboard('edit_u_password')" style="display: none;">
+                            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                            <span>Copiar</span>
+                        </span>
+                    </div>
+                </div>
             </div>
             
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
@@ -514,6 +605,14 @@
             panel.classList.remove('active');
         });
         document.getElementById('tab-' + tab + '-content').classList.add('active');
+
+        // Generar contraseña automática al ingresar a crear cliente si está vacía
+        if (tab === 'crear-cliente') {
+            const passInput = document.getElementById('c_pass');
+            if (passInput && !passInput.value) {
+                generateAutoPassword('c_pass');
+            }
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -521,11 +620,147 @@
         const activeTabParam = urlParams.get('active_tab');
         if (activeTabParam) {
             switchAdminTab(activeTabParam);
+        } else {
+            // Verificar si el campo c_pass existe y generar si es necesario
+            const passInput = document.getElementById('c_pass');
+            if (passInput && !passInput.value) {
+                generateAutoPassword('c_pass');
+            }
         }
     });
 
-    // Control Modales
-    function openEditProductModal(id, nombre, codigo, precio, stock, stockMin, catId) {
+    // ==========================================
+    // GESTIÓN DE CONTRASEÑAS SEGURAS Y CONFIABLES
+    // ==========================================
+
+    function generateAutoPassword(targetInputId) {
+        const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+        const lower = 'abcdefghijkmnpqrstuvwxyz';
+        const numbers = '23456789';
+        const symbols = '!@#$%&*?+-=';
+        
+        // Generar al menos 2 caracteres de cada conjunto para máxima seguridad
+        let pwd = '';
+        for (let i = 0; i < 3; i++) pwd += upper[Math.floor(Math.random() * upper.length)];
+        for (let i = 0; i < 4; i++) pwd += lower[Math.floor(Math.random() * lower.length)];
+        for (let i = 0; i < 3; i++) pwd += numbers[Math.floor(Math.random() * numbers.length)];
+        for (let i = 0; i < 2; i++) pwd += symbols[Math.floor(Math.random() * symbols.length)];
+        
+        // Desordenar aleatoriamente
+        pwd = pwd.split('').sort(() => 0.5 - Math.random()).join('');
+        
+        const input = document.getElementById(targetInputId);
+        if (input) {
+            input.value = pwd;
+            // Asegurarse de que el usuario pueda verla si lo desea
+            checkPasswordReliability(targetInputId);
+            
+            // Mostrar botón de copiar
+            const copyBtn = document.getElementById(targetInputId + '_copy_btn');
+            if (copyBtn) {
+                copyBtn.style.display = 'inline-flex';
+            }
+        }
+        return pwd;
+    }
+
+    function checkPasswordReliability(inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        const pwd = input.value;
+        
+        const fill = document.getElementById(inputId + '_strength_fill');
+        const text = document.getElementById(inputId + '_strength_text');
+        const box = document.getElementById(inputId + '_box');
+        const copyBtn = document.getElementById(inputId + '_copy_btn');
+        
+        if (box) {
+            box.style.display = pwd.length > 0 ? 'block' : 'none';
+        }
+        if (copyBtn) {
+            copyBtn.style.display = pwd.length > 0 ? 'inline-flex' : 'none';
+        }
+        
+        if (!fill || !text) return;
+        
+        if (pwd.length === 0) {
+            fill.style.width = '0%';
+            fill.style.backgroundColor = '#64748b';
+            fill.style.boxShadow = 'none';
+            text.innerHTML = '<span style="color: var(--text-secondary);">Confiabilidad: Ingrese una contraseña</span>';
+            return;
+        }
+        
+        // Evaluar criterios de confiabilidad
+        let score = 0;
+        if (pwd.length >= 6) score += 1;
+        if (pwd.length >= 8) score += 1;
+        if (pwd.length >= 12) score += 1;
+        if (/[a-z]/.test(pwd)) score += 1;
+        if (/[A-Z]/.test(pwd)) score += 1;
+        if (/[0-9]/.test(pwd)) score += 1;
+        if (/[^a-zA-Z0-9]/.test(pwd)) score += 1;
+        
+        let percent = 0;
+        let label = '';
+        let color = '';
+        let glow = '';
+        
+        if (pwd.length < 6 || score <= 2) {
+            percent = 25;
+            label = '⚠️ Muy Débil (No Confiable)';
+            color = '#ef4444';
+            glow = '0 0 8px rgba(239, 68, 68, 0.4)';
+        } else if (score === 3 || score === 4) {
+            percent = 50;
+            label = '⚡ Aceptable (Poco Confiable)';
+            color = '#f97316';
+            glow = '0 0 8px rgba(249, 115, 22, 0.4)';
+        } else if (score === 5) {
+            percent = 75;
+            label = '👍 Buena (Confiable)';
+            color = '#f59e0b';
+            glow = '0 0 8px rgba(245, 158, 11, 0.4)';
+        } else {
+            percent = 100;
+            label = '🛡️ ¡Altamente Confiable y Segura!';
+            color = '#10b981';
+            glow = '0 0 12px rgba(16, 185, 129, 0.5)';
+        }
+        
+        fill.style.width = percent + '%';
+        fill.style.backgroundColor = color;
+        fill.style.boxShadow = glow;
+        text.innerHTML = `<span style="color: ${color}; font-weight: 700;">Confiabilidad: ${label}</span>`;
+    }
+
+    function copyPasswordToClipboard(inputId) {
+        const input = document.getElementById(inputId);
+        if (!input || !input.value) return;
+        
+        navigator.clipboard.writeText(input.value).then(() => {
+            const copyBtn = document.getElementById(inputId + '_copy_btn');
+            if (copyBtn) {
+                const originalHTML = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<span>✓ ¡Copiada!</span>';
+                copyBtn.style.color = '#10b981';
+                copyBtn.style.borderColor = '#10b981';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHTML;
+                    copyBtn.style.color = '';
+                    copyBtn.style.borderColor = '';
+                }, 2000);
+            }
+        }).catch(err => {
+            console.error('Error al copiar:', err);
+        });
+    }
+
+    // ==========================================
+    // CONTROL MODALES
+    // ==========================================
+
+    function openEditProductModal(id, nombre, codigo, precio, stock, stockMin, catId, imagen) {
         const modal = document.getElementById('edit-product-modal');
         const form = document.getElementById('edit-product-form');
         
@@ -536,6 +771,10 @@
         document.getElementById('edit_p_stock').value = stock;
         document.getElementById('edit_p_stock_min').value = stockMin;
         document.getElementById('edit_p_cat').value = catId;
+        const imgSelect = document.getElementById('edit_p_img');
+        if (imgSelect) {
+            imgSelect.value = imagen || '';
+        }
         
         // Poner url correcta
         form.action = `/admin/inventory/edit/${id}`;
@@ -578,7 +817,11 @@
         document.getElementById('edit_u_direccion').value = direccion;
         document.getElementById('edit_u_rol').value = rolId;
         document.getElementById('edit_u_ci').value = ci;
-        document.getElementById('edit_u_password').value = ''; // Clean password field
+        document.getElementById('edit_u_password').value = ''; // Limpiar contraseña
+        
+        // Ocultar barra de confiabilidad hasta que escriba o genere
+        const passBox = document.getElementById('edit_u_password_box');
+        if (passBox) passBox.style.display = 'none';
         
         // Poner url
         form.action = `/admin/users/edit/${id}`;

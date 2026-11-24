@@ -1,5 +1,6 @@
+import os
 import bcrypt
-from flask import Blueprint, render_template, request, session, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, session, redirect, url_for, flash, jsonify, current_app
 from database import get_db
 from models.usuario import toggle_estado_usuario
 from models.producto import actualizar_stock_producto
@@ -50,9 +51,9 @@ def dashboard():
             """)
         clientes = cur.fetchall()
         
-        # 3. Obtener inventario de productos
+        # 3. Obtener inventario de productos con imagen
         cur.execute("""
-            SELECT p.id_producto, p.codigo_barras, p.nombre_producto, p.precio_venta, p.stock_actual, p.stock_minimo, cat.nombre_categoria, p.id_categoria
+            SELECT p.id_producto, p.codigo_barras, p.nombre_producto, p.precio_venta, p.stock_actual, p.stock_minimo, cat.nombre_categoria, p.id_categoria, p.imagen
             FROM productos p
             JOIN categorias cat ON p.id_categoria = cat.id_categoria
             ORDER BY p.id_producto;
@@ -62,6 +63,12 @@ def dashboard():
         # 4. Obtener categorías para selectores
         cur.execute("SELECT id_categoria, nombre_categoria FROM categorias ORDER BY nombre_categoria;")
         categorias = cur.fetchall()
+
+        # 5. Obtener lista de fotos de materiales disponibles
+        fotos_dir = os.path.join(current_app.static_folder, 'img', 'materiales')
+        fotos_disponibles = []
+        if os.path.exists(fotos_dir):
+            fotos_disponibles = sorted([f for f in os.listdir(fotos_dir) if f.lower().endswith(('.jpg', '.jpeg', '.png', '.webp'))])
         
     finally:
         cur.close()
@@ -71,6 +78,7 @@ def dashboard():
                            clientes=clientes, 
                            inventario=inventario, 
                            categorias=categorias,
+                           fotos_disponibles=fotos_disponibles,
                            search_query=search_query)
 
 # ==========================================
@@ -85,6 +93,7 @@ def create_product():
     stock_actual = int(request.form.get('stock_actual', 0))
     stock_minimo = int(request.form.get('stock_minimo', 5))
     id_categoria = int(request.form.get('id_categoria'))
+    imagen = request.form.get('imagen', '').strip() or None
     
     if not (codigo_barras and nombre_producto and id_categoria):
         flash("Todos los campos para añadir producto son obligatorios.", "error")
@@ -94,11 +103,11 @@ def create_product():
     cur = conn.cursor()
     try:
         cur.execute("""
-            INSERT INTO productos (codigo_barras, nombre_producto, precio_venta, stock_actual, stock_minimo, id_categoria)
-            VALUES (%s, %s, %s, %s, %s, %s);
-        """, (codigo_barras, nombre_producto, precio_venta, stock_actual, stock_minimo, id_categoria))
+            INSERT INTO productos (codigo_barras, nombre_producto, precio_venta, stock_actual, stock_minimo, id_categoria, imagen)
+            VALUES (%s, %s, %s, %s, %s, %s, %s);
+        """, (codigo_barras, nombre_producto, precio_venta, stock_actual, stock_minimo, id_categoria, imagen))
         conn.commit()
-        flash(f"Material '{nombre_producto}' añadido al inventario.", "success")
+        flash(f"Material '{nombre_producto}' añadido al inventario con éxito.", "success")
     except Exception as e:
         conn.rollback()
         flash(f"Error al añadir producto: {str(e)}", "error")
@@ -115,6 +124,7 @@ def edit_product(id_producto):
     stock_actual = int(request.form.get('stock_actual', 0))
     stock_minimo = int(request.form.get('stock_minimo', 5))
     id_categoria = int(request.form.get('id_categoria'))
+    imagen = request.form.get('imagen', '').strip() or None
     
     if not (codigo_barras and nombre_producto):
         flash("El código de barras y el nombre del material son obligatorios.", "error")
@@ -125,9 +135,9 @@ def edit_product(id_producto):
     try:
         cur.execute("""
             UPDATE productos 
-            SET codigo_barras = %s, nombre_producto = %s, precio_venta = %s, stock_actual = %s, stock_minimo = %s, id_categoria = %s
+            SET codigo_barras = %s, nombre_producto = %s, precio_venta = %s, stock_actual = %s, stock_minimo = %s, id_categoria = %s, imagen = %s
             WHERE id_producto = %s;
-        """, (codigo_barras, nombre_producto, precio_venta, stock_actual, stock_minimo, id_categoria, id_producto))
+        """, (codigo_barras, nombre_producto, precio_venta, stock_actual, stock_minimo, id_categoria, imagen, id_producto))
         conn.commit()
         flash(f"Material '{nombre_producto}' editado con éxito.", "success")
     except Exception as e:
